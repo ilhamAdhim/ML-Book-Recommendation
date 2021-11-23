@@ -55,44 +55,50 @@ Untuk mengenali data lebih lanjut, saya melihat fitur apa saja yang tersedia, ap
 
 > Dilihat dari persebaran null values yang begitu bervariasi. Tentu kita perlu menghapus data tersebut. Namun karena tujuan kita adalah meningkatkan user experience dalam rekomendasi buku berdasarkan genre dan judul. Maka kedepannya kita hanya akan menghapus null values dari 2 fitur tersebut.
 
-Berikut ilustrasi top 10 publisher dengan jumlah buku diterbitkan terbanyak:
+Selain itu, saya juga ingin mengetahui top 10 publisher dengan jumlah buku diterbitkan terbanyak, berikut ilustrasinya:
 
 ![top_10_publisher](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/top_10_publisher.png?raw=true)
 
 > Terlihat pada grafik diatas bahwa publisher dengan buku diterbitkan terbanyak di dataset ini adalah `Vintage`.
 
-Berikut ilustrasi top 10 genre dengan jumlah buku terbanyak:
+Saya juga ingin mengetahui 10 genre dengan jumlah buku terbanyak. Hasilnya adalah sebagai berikut:
 
 ![top_10_genres](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/top_10_genres.png?raw=true)
 
 ## Data Preparation
 
-Dalam tahap ini, saya menyiapkan dataframe yang telah menyimpan data dari CSV tersebut untuk dilakukan beberapa pengecekan, pertama kita perlu memeriksa adanya null values. Ini perlu dilakukan untuk menjaga akurasi dari prediksi model yang akan kita lakukan di proses pelatihan data sebelum melanjutkan ke proses cosine similarity.
+Dalam tahap ini, saya menyiapkan dataframe yang telah menyimpan data dari CSV tersebut untuk dilakukan beberapa pengecekan, pertama kita perlu melakukan proses `Data Cleaning` dengan cara memeriksa adanya null values. Ini perlu dilakukan untuk menjaga akurasi dari prediksi model yang akan kita lakukan di proses pelatihan data sebelum melanjutkan ke proses cosine similarity.
    
 ![penghapusan_null_values](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/penghapusan_null_values.png?raw=true)
 
 
-<br> Setelah itu, kita perlu melakukan penghapusan data duplikat di kolom `title` untuk mencegah terjadinya bias dalam implementasi cosine similarity.
+<br> Setelah itu, Proses `Data Cleaning` selanjutnya adalah melakukan penghapusan data duplikat di kolom `title` dan `genre` untuk mencegah terjadinya bias dalam implementasi cosine similarity.
 
 ![penghapusan_duplikat_data](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/penghapusan_duplikat_data.png?raw=true)
 
- Karena genre yang ada dalam dataset mempunyai value yang banyak dan untuk kemudahan dalam pemrosesan data lebih lanjut, saya memilih satu genre pertama sebagai representasi kategori dari tiap buku yuang ada.
+Karena genre yang ada dalam dataset mempunyai value yang banyak dan untuk kemudahan dalam pemrosesan data lebih lanjut, saya memilih satu genre pertama sebagai representasi kategori dari tiap buku yang ada.
 
 ![pemilihan-genre](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/pemilihan-genre.png?raw=true)
 
+Kemudian,  `Content-Based Filtering` dalam submission ini hanya memerlukan data id, title, genre, dan rating (tidak memerlukan data publisher, date_published, num_of_page, book_link, dst). Maka lebih baik fitur tersebut dihapus untuk saat ini.
+
+![feature-selection](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/feature-selection.png?raw=true)
+
 
 Sebagai rangkuman, langkah yang telah saya lakukan untuk tahap ini adalah:
-* Penghapusan missing values
-* Penghapusan duplikat data
-* Pengambilan genre pertama dari banyak genre dalam satu buku
+* Data Cleaning 
+  * Penghapusan null values
+  * Penghapusan data redundan
+  * Penggunaan satu genre untuk tiap buku 
+* Feature Selection 
 
 ## Modeling Content-Based Filtering
 Dalam tahap modelling, saya menerapkan **cosine similarity** untuk Content Based Filtering. Ini berguna untuk kalkulasi kemiripan antar judul buku dengan menggunakan fitur genre. Berikut untuk tahapan model lebih detailnya:
 
 ### Content Based Filtering
-Saya menerapkan TF-IDF Vectorizer untuk menemukan representasi fitur penting dari setiap genre yang telah diproses dari buku yang ada. Berikut sampel dari outputnya :
+Saya menerapkan CountVectorizer untuk menemukan representasi fitur penting dari setiap genre yang telah diproses dari buku yang ada. Berikut sampel dari outputnya :
 
-![tf-idf-vectorizer](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/tf-idf-vectorizer.png?raw=true)
+![count-vectorizer-result](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/count-vectorizer-result.png?raw=true)
 
 Setelah itu, saya melakukan fit dan transformasi ke dalam bentuk matriks. Outputnya adalah matriks berukuran (8140, 119). Nilai 8140 merupakan jumlah buku yang ada dan 119 merupakan matrik genre.
 
@@ -107,7 +113,6 @@ Output yang didapat adalah berupa dataframe dengan size (8140,8140). Size nya ya
 
 ![cosine_sim_df_res](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/cosine_sim_df_res.png?raw=true)
 
-## Evaluation
 
 Setelah pembuatan model, saya menguji akurasi dari sistem rekomendasi ini. Sebagai percobaan, saya ingin  menemukan rekomendasi buku yang mirip dengan 'War Time'. Berikut adalah detail informasi buku yang akan saya uji:
 
@@ -119,3 +124,12 @@ Setelah pembuatan model, saya menguji akurasi dari sistem rekomendasi ini. Sebag
 ![hasil-rekomendasi](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/hasil-rekomendasi.png?raw=true)
 
 > Berdasarkan hasil pada gambar diatas, sistem berhasil memberikan sepuluh rekomendasi buku yang mirip dengan 'War Time' dengan genre sama (History)
+
+## Evaluation
+Dalam tahap evaluasi, saya menggunakan metrik presisi. Dengan melihat dari [forum diskusi Dicoding](https://www.dicoding.com/academies/319/discussions/134402), kita bisa melakukan perhitungan presisi secara manual dengan formula sebagai berikut:
+
+![formula_presisi](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/formula_presisi.png?raw=true)
+
+Untuk mengotomatisasi perhitungan tersebut, kita bisa menuliskan kode yang melihat fitur genre dari dataframe hasil rekomendasi, kemudian membandingkan semua valuenya dengan genre dari buku yang dicari. Hasilnya, seperti pada gambar dibawah ini:
+
+![formula_presisi](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/skor_presisi.png?raw=true)
