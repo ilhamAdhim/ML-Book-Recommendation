@@ -53,9 +53,6 @@ od.download("https://www.kaggle.com/justinnguyen0x0x/best-books-of-the-21st-cent
 df_book_list = pd.read_csv('/content/best-books-of-the-21st-century-dataset/Best_Book_21st.csv', parse_dates=True, squeeze=True)
 df_book_list
 
-df_rating_list = pd.read_csv('/content/goodbooks-10k/ratings.csv', parse_dates=True, squeeze=True)
-df_rating_list
-
 """# Data Understanding
 Untuk submission ini, saya mengambil data dari Kaggle yang bernama Best Books of The 21st Century Dataset. Berikut adalah daftar kolom di file CSV yang tersedia:
 * id: id of the book
@@ -81,7 +78,7 @@ df_book_list['rate'].describe()
 for x in range(len(df_book_list)):
   df_book_list['genre'][x] = str(df_book_list['genre'][x]).split(',')[0]
 
-df_book_list
+df_book_list[['genre', 'title']]
 
 # Available genres:
 genres = df_book_list['genre'].unique().tolist()
@@ -133,7 +130,7 @@ Dari diagram tersebut, kita dapat informasi bahwa terdapat hampir 1000 buku yang
 """
 
 df_book_list['genre'].dropna(axis=0, inplace=True)
-df_book_list['rate'].dropna(axis=0, inplace=True)
+df_book_list['title'].dropna(axis=0, inplace=True)
 
 # Penghapusan buku dengan kategori nan
 df_book_list.drop(df_book_list.loc[df_book_list['genre']== 'nan'].index, inplace=True)
@@ -142,7 +139,7 @@ print("Setelah penghapusan null values : {}".format(df_book_list.shape))
 """### Penghapusan data duplikat"""
 
 df_book_list.drop_duplicates(subset=['title'], keep='first', inplace=True)
-print(df_book_list.shape)
+print("Setelah penghapusan duplikat data : {}".format(df_book_list.shape))
 
 check_duplicates = df_book_list[df_book_list.duplicated()]
 print(check_duplicates)
@@ -160,7 +157,7 @@ df_book_cleaned.head()
 # Data preparation untuk Cosine Similarity
 tf = TfidfVectorizer(stop_words='english')
 
-# Melakukan perhitungan idf pada data movies
+# Melakukan perhitungan idf pada data book
 tf.fit(df_book_cleaned['genre']) 
  
 # Mapping array dari fitur index integer ke fitur nama
@@ -174,6 +171,7 @@ tfidf_matrix.shape
 """#### Proses Perhitungan Cosine Similarity"""
 
 cosine_sim = cosine_similarity(tfidf_matrix)
+print(cosine_sim.shape)
 cosine_sim
 
 """#### Pembuatan Dataframe baru hasil cosine similarity"""
@@ -203,7 +201,7 @@ def BookRecommendations(book_title, similarity_data=cosine_sim_df,
     # Mengambil data dengan similarity terbesar dari index yang ada
     closest = similarity_data.columns[index[-1:-(k+2):-1]]
 
-    # Drop movie_title agar nama movie yang dicari tidak muncul dalam daftar rekomendasi
+    # Drop book_title agar nama buku yang dicari tidak muncul dalam daftar rekomendasi
     closest = closest.drop(book_title, errors='ignore')
 
     return pd.DataFrame(closest).merge(items).head(k)
