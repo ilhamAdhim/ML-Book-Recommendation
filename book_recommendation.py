@@ -43,7 +43,7 @@ import tensorflow as tf
 from scipy.sparse import csr_matrix
 from sklearn.metrics.pairwise import cosine_similarity
 
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 import opendatasets as od
@@ -151,11 +151,11 @@ df_book_cleaned.head()
 
 """# Content-Based Filtering
 
-#### TF-IDF Vectorizer
+#### CountVectorizer
 """
 
-# Data preparation untuk Cosine Similarity
-tf = TfidfVectorizer(stop_words='english')
+# Persiapan data untuk Cosine Similarity 
+tf = CountVectorizer(stop_words='english')
 
 # Melakukan perhitungan idf pada data book
 tf.fit(df_book_cleaned['genre']) 
@@ -212,9 +212,15 @@ Dapat dilihat bahwa buku 'Wartime Farm' bergenre 'History'
 
 # Check data lengkap sebuah title 
 find_title = df_book_cleaned[df_book_cleaned['title'] == 'Wartime Farm']
-find_title
+searched_genre_book = find_title['genre'].values
+searched_genre_book[0]
 
 """#### Rekomendasi buku yang serupa dengan 'Wartime Farm'"""
 
 book_suggestion = BookRecommendations(book_title = 'Wartime Farm')
 book_suggestion
+
+"""### Evaluation menggunakan metrik presisi"""
+
+precision_val = (book_suggestion['genre'][:] == searched_genre_book[0]).tolist().count(True) / len(book_suggestion['genre'])
+print("Skor presisi : {}%".format(precision_val * 100))

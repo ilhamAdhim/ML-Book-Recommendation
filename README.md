@@ -67,22 +67,23 @@ Saya juga ingin mengetahui 10 genre dengan jumlah buku terbanyak. Hasilnya adala
 
 ## Data Preparation
 
-Dalam tahap ini, saya menyiapkan dataframe yang telah menyimpan data dari CSV tersebut untuk dilakukan beberapa pengecekan, pertama kita perlu melakukan proses `Data Cleaning` dengan cara memeriksa adanya null values. Ini perlu dilakukan untuk menjaga akurasi dari prediksi model yang akan kita lakukan di proses pelatihan data sebelum melanjutkan ke proses cosine similarity.
+### 1. Data Cleaning 
    
-![penghapusan_null_values](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/penghapusan_null_values.png?raw=true)
+   Dalam tahap ini, saya menyiapkan dataframe yang telah menyimpan data dari CSV tersebut untuk dilakukan beberapa pengecekan, pertama kita perlu melakukan proses `Data Cleaning` dengan cara **memeriksa adanya null** values. Ini perlu dilakukan untuk menjaga akurasi dari prediksi model yang akan kita lakukan di proses pelatihan data sebelum melanjutkan ke proses cosine similarity.
+    
 
+  Selanjutnya, kita perlu  melakukan **penghapusan data duplikat** di kolom `title` dan `genre` untuk mencegah terjadinya bias dalam implementasi cosine similarity.
 
-<br> Setelah itu, Proses `Data Cleaning` selanjutnya adalah melakukan penghapusan data duplikat di kolom `title` dan `genre` untuk mencegah terjadinya bias dalam implementasi cosine similarity.
+### 2. Feature Selection
+  
 
-![penghapusan_duplikat_data](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/penghapusan_duplikat_data.png?raw=true)
-
-Karena genre yang ada dalam dataset mempunyai value yang banyak dan untuk kemudahan dalam pemrosesan data lebih lanjut, saya memilih satu genre pertama sebagai representasi kategori dari tiap buku yang ada.
+  Karena genre yang ada dalam dataset mempunyai value yang banyak dan untuk kemudahan dalam pemrosesan data lebih lanjut, saya memilih satu genre pertama sebagai representasi kategori dari tiap buku yang ada.
 
 ![pemilihan-genre](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/pemilihan-genre.png?raw=true)
 
 Kemudian,  `Content-Based Filtering` dalam submission ini hanya memerlukan data id, title, genre, dan rating (tidak memerlukan data publisher, date_published, num_of_page, book_link, dst). Maka lebih baik fitur tersebut dihapus untuk saat ini.
 
-![feature-selection](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/feature-selection.png?raw=true)
+![feature-selection](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/feature-selection-new.png?raw=true)
 
 
 Sebagai rangkuman, langkah yang telah saya lakukan untuk tahap ini adalah:
@@ -103,11 +104,6 @@ Saya menerapkan CountVectorizer untuk menemukan representasi fitur penting dari 
 Setelah itu, saya melakukan fit dan transformasi ke dalam bentuk matriks. Outputnya adalah matriks berukuran (8140, 119). Nilai 8140 merupakan jumlah buku yang ada dan 119 merupakan matrik genre.
 
 ![hasil-transformasi-data](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/hasil-transformasi-data.png?raw=true)
-
-
-Untuk melakukan perhitungan derajat kesamaan (similarity degree) berdasarkan genre buku, saya mengimplementasikan fungsi cosine_similarity dari library sklearn. Output yang didapat adalah berupa matrix.
-
-![cosine_sim_matrix](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/cosine_sim_matrix.png?raw=true)
 
 Output yang didapat adalah berupa dataframe dengan size (8140,8140). Size nya yang begitu besar dikarenakan ini merupakan menampung nilai kemiripan antara satu buku dengan buku lain. Sebagai ilustrasi, saya memutuskan untuk hanya mengambil 10 sampel secara acak dari dataframe tersebut
 
@@ -130,6 +126,4 @@ Dalam tahap evaluasi, saya menggunakan metrik presisi. Dengan melihat dari [foru
 
 ![formula_presisi](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/formula_presisi.png?raw=true)
 
-Untuk mengotomatisasi perhitungan tersebut, kita bisa menuliskan kode yang melihat fitur genre dari dataframe hasil rekomendasi, kemudian membandingkan semua valuenya dengan genre dari buku yang dicari. Hasilnya, seperti pada gambar dibawah ini:
-
-![formula_presisi](https://github.com/ilhamAdhim/ML-Book-Recommendation/blob/master/assets/skor_presisi.png?raw=true)
+Berdasarkan formula dan hasil rekomendasi tersebut, dapat kita simpulkan bahwa nilai presisi dari model kita adalah 100%
